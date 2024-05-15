@@ -46,7 +46,7 @@ jobs:
                       isa-option: 'NULL'
         runs-on: [self-hosted, linux, x64]
         needs: name-artifacts
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         steps:
             - uses: actions/checkout@v4
               with:
@@ -74,7 +74,7 @@ jobs:
             matrix:
                 type: [fast, debug]
         runs-on: [self-hosted, linux, x64]
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         timeout-minutes: 60
         steps:
             - uses: actions/checkout@v4
@@ -93,7 +93,7 @@ jobs:
                 test-type: [arm_boot_tests, fs, gpu, insttest_se, learning_gem5, m5threads_test_atomic, memory, multi_isa, replacement_policies, riscv_boot_tests,
                     stdlib, x86_boot_tests]
         runs-on: [self-hosted, linux, x64]
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         needs: [name-artifacts, build-gem5]
         timeout-minutes: 1440 # 24 hours for entire matrix to run
         steps:
@@ -157,19 +157,14 @@ jobs:
             - name: long ${{ matrix.test-type }} tests
               working-directory: ${{ github.workspace }}/tests
               run: ./main.py run gem5/${{ matrix.test-type }} --length=long --skip-build -vv -t $(nproc)
-            - name: create zip of results
-              if: success() || failure()
-              run: |
-                  apt-get -y install zip
-                  zip -r output.zip tests/testing-results
-            - name: upload zip
+            - name: upload results
               if: success() || failure()
               uses: actions/upload-artifact@v4
               env:
                   MY_STEP_VAR: ${{ matrix.test-type }}_COMMIT.${{github.sha}}_RUN.${{github.run_id}}_ATTEMPT.${{github.run_attempt}}
               with:
                   name: ${{ env.MY_STEP_VAR }}
-                  path: output.zip
+                  path: tests/testing-results
                   retention-days: 7
             - run: echo "This job's status is ${{ job.status }}."
 
@@ -182,7 +177,7 @@ jobs:
             matrix:
                 test-type: [gem5-library-example-x86-ubuntu-run-ALL-x86_64-opt, gem5-library-example-riscv-ubuntu-run-ALL-x86_64-opt, lupv-example-ALL-x86_64-opt,
                     gem5-library-example-arm-ubuntu-run-test-ALL-x86_64-opt, gem5-library-example-riscvmatched-hello-ALL-x86_64-opt]
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         needs: [name-artifacts, build-gem5]
         timeout-minutes: 1440 # 24 hours
         steps:
@@ -202,19 +197,14 @@ jobs:
               working-directory: ${{ github.workspace }}/tests
               run: ./main.py run --uid SuiteUID:tests/gem5/gem5_library_example_tests/test_gem5_library_examples.py:test-${{ matrix.test-type }} --length=long
                   --skip-build -vv
-            - name: create zip of results
-              if: success() || failure()
-              run: |
-                  apt-get -y install zip
-                  zip -r output.zip tests/testing-results
-            - name: upload zip
+            - name: upload results
               if: success() || failure()
               uses: actions/upload-artifact@v4
               env:
                   MY_STEP_VAR: ${{ matrix.test-type }}_COMMIT.${{github.sha}}_RUN.${{github.run_id}}_ATTEMPT.${{github.run_attempt}}
               with:
                   name: ${{ env.MY_STEP_VAR }}
-                  path: output.zip
+                  path: tests/testing-results
                   retention-days: 7
             - run: echo "This job's status is ${{ job.status }}."
 
@@ -304,7 +294,7 @@ jobs:
         # I.e., if we want to stop pull requests from being merged if the
         # daily tests are failing we can add this job as a required status
         # check.
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         needs:
             - unittests-fast-debug
             - testlib-long-tests

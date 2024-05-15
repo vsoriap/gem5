@@ -92,7 +92,7 @@ jobs:
 
     build-gem5:
         runs-on: [self-hosted, linux, x64]
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         outputs:
             build-name: ${{ steps.artifact-name.outputs.name }}
         steps:
@@ -120,7 +120,7 @@ jobs:
             matrix:
                 test-type: [gem5_library_example_tests, gem5_resources, parsec_benchmarks, x86_boot_tests]
         runs-on: [self-hosted, linux, x64]
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         needs: [build-gem5]
         timeout-minutes: 4320 # 3 days
         steps:
@@ -139,25 +139,20 @@ jobs:
             - name: very-long ${{ matrix.test-type }}
               working-directory: ${{ github.workspace }}/tests
               run: ./main.py run gem5/${{ matrix.test-type }} --length very-long --skip-build -vv
-            - name: create zip of results
-              if: success() || failure()
-              run: |
-                  apt-get -y install zip
-                  zip -r output.zip tests/testing-results
-            - name: upload zip
+            - name: upload results
               if: success() || failure()
               uses: actions/upload-artifact@v4
               env:
                   MY_STEP_VAR: ${{ matrix.test-type }}_COMMIT.${{github.sha}}_RUN.${{github.run_id}}_ATTEMPT.${{github.run_attempt}}
               with:
                   name: ${{ env.MY_STEP_VAR }}
-                  path: output.zip
+                  path: tests/testing-results
                   retention-days: 7
             - run: echo "This job's status is ${{ job.status }}."
 
     dramsys-tests:
         runs-on: [self-hosted, linux, x64]
-        container: ghcr.io/gem5/ubuntu-22.04_all-dependencies:latest
+        container: ghcr.io/gem5/ubuntu-24.04_all-dependencies:latest
         timeout-minutes: 4320 # 3 days
         steps:
             - uses: actions/checkout@v4
@@ -187,7 +182,7 @@ jobs:
         # I.e., if we want to stop pull requests from being merged if the
         # weekly tests are failing we can add this job as a required status
         # check.
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         needs:
             - testlib-very-long-tests
             - dramsys-tests
