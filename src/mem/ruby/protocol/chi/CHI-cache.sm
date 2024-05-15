@@ -234,6 +234,7 @@ machine(MachineType:Cache, "Cache coherency protocol") :
     I, AccessPermission:Invalid,    desc="Invalid / not present locally or upstream";
 
     // States when block is present in local cache only
+    IU, AccessPermission:Update_Only,   desc="Invalid Updatable";
     SC, AccessPermission:Read_Only,     desc="Shared Clean";
     UC, AccessPermission:Read_Write,    desc="Unique Clean";
     SD, AccessPermission:Read_Only,     desc="Shared Dirty";
@@ -497,6 +498,9 @@ machine(MachineType:Cache, "Cache coherency protocol") :
     SendCompDBIDResp_ANR,  desc="Ack ANR with CompDBIDResp and set expected data";
     SendDBIDResp_ANR,      desc="Ack ANR with DBIDResp and set expected data";
     SendComp_ANR,          desc="Ack ANR completion";
+
+    // Send update request downstream
+    SendUpdate,               out_trans="yes", desc="Send update request";
 
     // Dataless requests
     SendEvict,      out_trans="yes", desc="Send a Evict";

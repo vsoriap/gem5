@@ -71,6 +71,7 @@ enumeration(CHIRequestType, desc="") {
 
   AtomicReturn;
   AtomicNoReturn;
+  Update;
 
   SnpSharedFwd;
   SnpNotSharedDirtyFwd;

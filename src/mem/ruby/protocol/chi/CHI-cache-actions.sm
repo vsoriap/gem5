@@ -846,6 +846,10 @@ action(Initiate_AtomicNoReturn_I, desc="") {
     tbe.dataToBeInvalid := true;
     tbe.doCacheFill := false;
     tbe.atomic_to_be_done := false;
+  } else if (policy_type == 3) { // COUP
+    tbe.actions.push(Event:SendUpdate);
+    tbe.doCacheFill := false;
+    tbe.atomic_to_be_done := true;
   } else {
     error("Invalid policy type");
   }
@@ -883,6 +887,10 @@ action(Initiate_AtomicNoReturn_SD, desc="") {
     tbe.dataToBeInvalid := true;
     tbe.doCacheFill := false;
     tbe.atomic_to_be_done := false;
+  } else if (policy_type == 3) { // COUP
+    tbe.actions.push(Event:SendUpdate);
+    tbe.doCacheFill := false;
+    tbe.atomic_to_be_done := true;
   } else {
     error("Invalid policy type");
   }
@@ -920,6 +928,10 @@ action(Initiate_AtomicNoReturn_SC, desc="") {
     tbe.dataToBeInvalid := true;
     tbe.doCacheFill := false;
     tbe.atomic_to_be_done := false;
+  } else if (policy_type == 3) { // COUP
+    tbe.actions.push(Event:SendUpdate);
+    tbe.doCacheFill := false;
+    tbe.atomic_to_be_done := true;
   } else {
     error("Invalid policy type");
   }
@@ -1689,6 +1701,17 @@ action(Send_AtomicNoReturn, desc="") {
   tbe.expected_req_resp.addExpectedCount(1);
 }
 
+action(Send_Update, desc="") {
+  assert(is_valid(tbe));
+
+  enqueue(reqOutPort, CHIRequestMsg, request_latency) {
+    prepareRequestUpdate(tbe, CHIRequestType:Update, out_msg);
+    out_msg.Destination.add(mapAddressToDownstreamMachine(tbe.addr));
+    allowRequestRetry(tbe, out_msg);
+  }
+  tbe.expected_req_resp.addExpectedRespType(CHIResponseType:Comp);
+  tbe.expected_req_resp.addExpectedCount(1);
+}
 
 action(Send_SnpCleanInvalid, desc="") {
   assert(is_valid(tbe));

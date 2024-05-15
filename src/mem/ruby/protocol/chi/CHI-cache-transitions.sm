@@ -520,6 +520,23 @@ transition(I, AtomicNoReturn_PoC, BUSY_BLKD) {
   ProcessNextState;
 }
 
+transition({I,SC,SC_RSC,SD,SD_RSD,SD_RSC,RSD,RUSD,RUSC,
+            UD,UD_RSC,UD_RSD,UD_RU,UC,UC_RSC,UC_RU,RSC,RU}, Update, BUSY_BLKD) {
+  Initiate_Request;
+  Initiate_Update_Forward;
+  Profile_Miss;
+  Pop_ReqRdyQueue;
+  ProcessNextState;
+}
+
+transition(I, Update_PoC, BUSY_BLKD) {
+  Initiate_Request;
+  Initiate_Update_Miss;
+  Allocate_DirEntry;
+  Profile_Miss;
+  Pop_ReqRdyQueue;
+  ProcessNextState;
+}
 
 // Load / Store / Atomic from sequencer & Prefetch from prefetcher
 
@@ -962,6 +979,12 @@ transition(BUSY_BLKD, SendAtomicNoReturn, BUSY_INTR) {DestinationAvailable} {
   ProcessNextState_ClearPending;
 }
 
+transition(BUSY_BLKD, SendUpdate, BUSY_INTR) {DestinationAvailable} {
+  Pop_TriggerQueue;
+  Send_Update;
+  Profile_OutgoingStart;
+  ProcessNextState_ClearPending;
+}
 
 transition(BUSY_BLKD, SendWriteNoSnp, BUSY_INTR) {DestinationAvailable} {
   Pop_TriggerQueue;

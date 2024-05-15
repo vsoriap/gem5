@@ -1285,6 +1285,12 @@ Event reqToEvent(CHIRequestType type, bool is_prefetch) {
     } else {
       return Event:AtomicNoReturn;
     }
+  } else if (type == CHIRequestType:Update){
+    if (is_HN){
+      return Event:Update_PoC;
+    } else {
+      return Event:Update;
+    }
   } else {
     error("Invalid CHIRequestType");
   }
